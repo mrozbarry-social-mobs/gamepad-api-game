@@ -5,10 +5,18 @@
   "module": "lib/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node -r esm src/index.js"
+    "start": "parcel client/index.html --port 8080",
+    "dev": "node -r esm server.js"
   },
   "dependencies": {
     "esm": "^3.2.25",
-    "ferp": "^1.2.0"
+    "express": "^4.17.1",
+    "ferp": "^1.2.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "ws": "^7.4.3"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
   }
 }

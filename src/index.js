@@ -1,5 +1,6 @@
 import http from 'http';
 import process from 'process';
+import WebSocket from 'ws';
 import websocketApp from './app.js';
 
 const port = 8080;

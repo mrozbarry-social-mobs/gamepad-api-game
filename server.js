@@ -13,9 +13,7 @@ const server = http.createServer(app);
 
 const webSocketServer = new SocketServer({ server });
 webSocketServer.on('connection', (socket) => {
-  console.log('connection');
   socket.on('message', (message) => {
-    console.log('message');
     webSocketServer.clients.forEach((client) => {
       if (client === socket) return;
       client.send(message);

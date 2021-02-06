@@ -26,8 +26,8 @@ export default (options) => (Component) => (props) => {
 
     socket.addEventListener('open', onOpen);
     socket.addEventListener('message', onMessage);
-    //socket.addEventListener('error', onError);
-    //socket.addEventListener('close', onClose);
+    socket.addEventListener('error', onError);
+    socket.addEventListener('close', onClose);
 
     return () => {
       console.log('useEffect.cancel');
@@ -39,20 +39,20 @@ export default (options) => (Component) => (props) => {
     };
   });
 
-  const websocketSend = (type, payload) => {
+  const hostSend = (type, payload) => {
     if (!socketRef.current) return;
 
     socketRef.current.send(JSON.stringify({ type, payload, timestamp: performance.now() }));
   };
 
-  const websocketSubscribe = (callback) => {
+  const hostSubscribe = (callback) => {
     listenerRef.current.push(callback);
     return () => {
       listenerRef.current = listenerRef.current.filter((cb) => cb !== callback);
     };
   };
 
-  const websocketProps = { websocketSend, websocketSubscribe };
+  const hostProps = { hostSend, hostSubscribe };
 
-  return <Component {...props} {...websocketProps} />;
+  return <Component {...props} {...hostProps} />;
 };

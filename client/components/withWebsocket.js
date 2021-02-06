@@ -3,17 +3,22 @@ import React, { useRef, useEffect } from 'react';
 export default (options) => (Component) => (props) => {
   const socketRef = useRef(null);
   const listenersRef = useRef([]);
+  const backlogRef = useRef([]);
 
   useEffect(() => {
-    const socket = new WebSocket(options.host)
+    socketRef.current = new WebSocket(options.host)
 
     const onOpen = (event) => {
-      console.log('websocket.open', event);
+      console.log('websocket.open');
     };
 
     const onMessage = (event) => {
       const message = JSON.parse(event.data);
-      listenersRef.current.forEach((callback) => callback(message));
+      backlogRef.current.push(message);
+      listenersRef.current.forEach((callback) => {
+        if (backlogRef.current.length === 0) return;
+        backlogRef.current.filter((msg) => !callback(msg));
+      });
     };
 
     const onError = (error) => {
@@ -24,18 +29,17 @@ export default (options) => (Component) => (props) => {
       console.log('websocket.close', event);
     };
 
-    socket.addEventListener('open', onOpen);
-    socket.addEventListener('message', onMessage);
-    socket.addEventListener('error', onError);
-    socket.addEventListener('close', onClose);
+    socketRef.current.addEventListener('open', onOpen);
+    socketRef.current.addEventListener('message', onMessage);
+    socketRef.current.addEventListener('error', onError);
+    socketRef.current.addEventListener('close', onClose);
 
     return () => {
-      console.log('useEffect.cancel');
-      socket.removeEventListener('open', onOpen);
-      socket.removeEventListener('message', onMessage);
-      socket.removeEventListener('error', onError);
-      socket.removeEventListener('close', onClose);
-      socket.close();
+      socketRef.current.removeEventListener('open', onOpen);
+      socketRef.current.removeEventListener('message', onMessage);
+      socketRef.current.removeEventListener('error', onError);
+      socketRef.current.removeEventListener('close', onClose);
+      socketRef.current.close();
     };
   });
 
@@ -46,9 +50,10 @@ export default (options) => (Component) => (props) => {
   };
 
   const hostSubscribe = (callback) => {
-    listenerRef.current.push(callback);
+    listenersRef.current.push(callback);
+    backlogRef.current.filter((message) => !callback(message));
     return () => {
-      listenerRef.current = listenerRef.current.filter((cb) => cb !== callback);
+      listenersRef.current = listenersRef.current.filter((cb) => cb !== callback);
     };
   };
 

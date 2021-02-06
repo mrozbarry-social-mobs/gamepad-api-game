@@ -13,7 +13,22 @@ const server = http.createServer(app);
 
 const webSocketServer = new SocketServer({ server });
 webSocketServer.on('connection', (socket) => {
+  const send = (type, payload) => socket.send(JSON.stringify({
+    type,
+    payload,
+    timestamp: Date.now(),
+  }));
   socket.on('message', (message) => {
+    const json = JSON.parse(message.toString());
+    if (json.type === 'JOIN') {
+      send('YOU', {
+        id: Math.random().toString(36).slice(2),
+        name: json.payload.name,
+        color: json.payload.color,
+        x: Math.random() * 1920,
+        y: Math.random() * 1080,
+      });
+    }
     webSocketServer.clients.forEach((client) => {
       if (client === socket) return;
       client.send(message);

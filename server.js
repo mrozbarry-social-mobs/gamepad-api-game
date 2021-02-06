@@ -6,8 +6,8 @@ import Bundler from 'parcel-bundler';
 const app = express.default();
 app.set('trust proxy', true);
 
-//const bundler = new Bundler('client/index.html', {});
-//app.use(bundler.middleware());
+const bundler = new Bundler('client/index.html', {});
+app.use(bundler.middleware());
 
 const server = http.createServer(app);
 
@@ -24,6 +24,6 @@ webSocketServer.on('connection', (socket) => {
 });
 
 // Listen on port 8080
-app.listen(8080, '0.0.0.0', () => {
+server.listen(8080, () => {
   console.log('listening');
 });

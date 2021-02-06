@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import withWebsocket from './withWebsocket.js';
 
+const webSocketProtocol = window.location.protocol.startsWith('https')
+  ? 'wss:'
+  : 'ws:';
+
+const webSocketHost = `${webSocketProtocol}//${window.location.host}`;
+
 export default withWebsocket({
-  host: 'wss://fun.mrbarry.com/',
+  host: webSocketHost,
 })(() => {
   const [state, setState] = useState({
     x: 0,
@@ -33,7 +39,7 @@ export default withWebsocket({
       });
       handle = requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick);
+    // requestAnimationFrame(tick);
 
     return () => {
       cancelAnimationFrame(handle);

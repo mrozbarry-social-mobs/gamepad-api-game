@@ -5,9 +5,7 @@ export default (options) => (Component) => (props) => {
   const listenersRef = useRef([]);
 
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = new WebSocket(options.host)
-    }
+    const socket = new WebSocket(options.host)
 
     const onOpen = (event) => {
       console.log('websocket.open', event);
@@ -26,20 +24,20 @@ export default (options) => (Component) => (props) => {
       console.log('websocket.close', event);
     };
 
-    socketRef.current.addEventListener('open', onOpen);
-    socketRef.current.addEventListener('message', onOpen);
-    socketRef.current.addEventListener('error', onError);
-    socketRef.current.addEventListener('close', onClose);
+    socket.addEventListener('open', onOpen);
+    socket.addEventListener('message', onMessage);
+    //socket.addEventListener('error', onError);
+    //socket.addEventListener('close', onClose);
 
     return () => {
       console.log('useEffect.cancel');
-      socketRef.current.removeEventListener('open', onOpen);
-      socketRef.current.removeEventListener('message', onMessage);
-      socketRef.current.removeEventListener('error', onError);
-      socketRef.current.removeEventListener('close', onClose);
-      socketRef.current.close();
+      socket.removeEventListener('open', onOpen);
+      socket.removeEventListener('message', onMessage);
+      socket.removeEventListener('error', onError);
+      socket.removeEventListener('close', onClose);
+      socket.close();
     };
-  }, []);
+  });
 
   const websocketSend = (type, payload) => {
     if (!socketRef.current) return;

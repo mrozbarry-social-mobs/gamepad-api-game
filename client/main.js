@@ -15,20 +15,7 @@ const Screens = {
 };
 
 function App(){
-  const [screen, setScreen] = useState('intro');
-  //const [state, setState] = useState({ x: 0, y: 0 });
-
-  //useEffect(() => {
-    //const gamepads = window.navigator.getGamepads();
-    //const [xDiff, yDiff] = gamepads[0] && gamepads[0].axes || [0, 0];
-    //requestAnimationFrame(() => {
-      //setState({
-        //x: state.x + xDiff,
-        //y: state.y + yDiff,
-      //});
-    //});
-
-  //});
+  const [screen, setScreen] = useState('game');
 
   const Component = Screens[screen];
   const componentProps = {
@@ -36,20 +23,7 @@ function App(){
   };
 
   return (
-    <div>
-      <Component {...componentProps} />
-        {/*
-        <!--<div style={{  
-        width: `5px`,
-        height: `5px`,
-        backgroundColor: 'red',
-        position: 'absolute',
-        top: `${state.y}px`,
-        left: `${state.x}px`,
-      }} />
-          <code>{JSON.stringify(state, null, 2)}</code>
-          */}
-    </div>
+    <Component {...componentProps} />
   )
 }
 

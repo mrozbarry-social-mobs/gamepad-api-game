@@ -1,32 +1,21 @@
 import * as http from 'http';
-import * as ws from 'ws';
-import express from 'express';
+import { Server as SocketServer } from 'ws';
+import * as express from 'express';
 import Bundler from 'parcel-bundler';
-import { promises as fs } from 'fs';
-import * as path from 'path';
 
-const app = express();
+const app = express.default();
+app.set('trust proxy', true);
+
+//const bundler = new Bundler('client/index.html', {});
+//app.use(bundler.middleware());
+
 const server = http.createServer(app);
-const webSocketServer = new ws.Server({ server });
 
-const bundler = new Bundler('client/index.html', {});
-
-const LOG_PATH = path.resolve(__dirname, 'logs', 'log.txt');
-const log = (...data) => fs.writeFile(
-  LOG_PATH,
-  data.map((d) => '[' + (new Date()).toString() + '] ' + JSON.stringify(d, null, 2)).join('\n'),
-  { encoding: 'utf8', flag: 'as' },
-).catch(console.error);
-
-app.use(bundler.middleware());
-
+const webSocketServer = new SocketServer({ server });
 webSocketServer.on('connection', (socket) => {
-  log('client connected');
-  socket.on('error', (err) => {
-    log('client error', err);
-  });
+  console.log('connection');
   socket.on('message', (message) => {
-    log('client message relay', message);
+    console.log('message');
     webSocketServer.clients.forEach((client) => {
       if (client === socket) return;
       client.send(message);
@@ -35,4 +24,6 @@ webSocketServer.on('connection', (socket) => {
 });
 
 // Listen on port 8080
-app.listen(8080);
+app.listen(8080, '0.0.0.0', () => {
+  console.log('listening');
+});

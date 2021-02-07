@@ -5,8 +5,7 @@
   "module": "lib/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "parcel client/index.html --port 8080",
-    "dev": "node -r esm server.js"
+    "start": "node -r esm src/index.js"
   },
   "dependencies": {
     "declarativas": "^0.0.1-beta.6",

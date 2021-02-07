@@ -1,4 +1,5 @@
 import { effects } from 'ferp';
+import * as fx from './effects.js';
 
 export const INITIAL_STATE = {
   websocketServer: null,
@@ -26,4 +27,18 @@ export const clientDisconnect = (client) => (state) => [
 
 export const clientReset = () => (state) => [
   { ...state, clients: [] },
+];
+
+export const serverBroadcast = (client, message) => (state) => [
+  state,
+  fx.websocketBroadcast(
+    state.websocketServer,
+    client,
+    message
+  ),
+];
+
+export const clientSend = (client, type, payload) => (state) => [
+  state,
+  fx.websocketSend(client, JSON.stringify({ type, payload })),
 ];

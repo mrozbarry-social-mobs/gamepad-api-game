@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 
 const fx = (method) => (...args) => [method, ...args];
 
-export const clientConnector = fx((websocketServer, onClientConnect, onClose) => (dispatch) => {
+export const clientConnector = fx((websocketServer, onClientConnect, onClientDisconnect, onClose) => (dispatch) => {
   const onConnection = (client) => {
     dispatch(onClientConnect(client))
 
@@ -19,9 +19,18 @@ export const clientConnector = fx((websocketServer, onClientConnect, onClose) =>
   };
 });
 
-export const clientMessager = fx((client) => (_dispatch) => {
+export const clientMessager = fx((client, serverBroadcast, clientSend) => (dispatch) => {
   const onMessage = (event) => {
-    console.log('client message', event);
+    const message = JSON.parse(event.data);
+    if (message.type === 'JOIN') {
+      dispatch(clientSend(client, 'YOU', {
+        ...message.payload,
+        id: Math.random().toString(36).slice(2),
+        x: Math.random() * 1920,
+        y: Math.random() * 1080,
+      }));
+    }
+    dispatch(serverBroadcast(client, message));
   };
 
   client.addEventListener('message', onMessage);

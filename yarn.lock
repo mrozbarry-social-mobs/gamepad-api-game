@@ -1921,6 +1921,11 @@ debug@^4.1.0:
   dependencies:
     ms "2.1.2"
 
+declarativas@^0.0.1-beta.6:
+  version "0.0.1-beta.6"
+  resolved "https://registry.yarnpkg.com/declarativas/-/declarativas-0.0.1-beta.6.tgz#4929661eb31bd0cb78cab0a907df3bd2aae14047"
+  integrity sha512-Bl0YJpCsBvm5johBAyT7ZtU2hbnRWlGg5G+squEAXYFhN3LKAY0+6B+hdQ3NIn/8uYz9o8XTw2QMseFOlAChZw==
+
 decode-uri-component@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"

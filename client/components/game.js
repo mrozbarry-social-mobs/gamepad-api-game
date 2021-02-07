@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import withWebsocket from './withWebsocket.js';
 import Join from './join.js';
 import Loading from './loading.js';
-import Play from './play.js';
+import Play from './playCanvas.js';
 
 const webSocketProtocol = window.location.protocol.startsWith('https')
   ? 'wss:'
@@ -22,8 +22,8 @@ export default withWebsocket({
   const [game, setGame] = useState({
     view: 'join',
     id: null,
-    name: '',
-    color: '',
+    name: 'Player_' + Math.random().toString(36).slice(2, 8),
+    color: 'purple',
     x: 0,
     y: 0,
   });

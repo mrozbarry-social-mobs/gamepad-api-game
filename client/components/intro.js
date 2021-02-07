@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 export default ({onGameStart = () => {}}) => {
 
   useEffect(() => {
     window.addEventListener('gamepadconnected', onGameStart);
+
     return () => {
       window.removeEventListener('gamepadconnected', onGameStart);
     }

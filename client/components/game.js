@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import withWebsocket from './withWebsocket.js';
 import Join from './join.js';
 import Loading from './loading.js';
-import Play from './playCanvas.js';
+import Play from './play.js';
 
 const webSocketProtocol = window.location.protocol.startsWith('https')
   ? 'wss:'

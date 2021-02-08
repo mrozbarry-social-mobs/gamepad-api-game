@@ -30,7 +30,7 @@ export const clientMessager = fx((client, serverBroadcast, clientSend) => (dispa
         y: Math.random() * 1080,
       }));
     }
-    dispatch(serverBroadcast(client, message));
+    // dispatch(serverBroadcast(client, message));
   };
 
   client.addEventListener('message', onMessage);

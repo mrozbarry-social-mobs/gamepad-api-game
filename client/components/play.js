@@ -40,6 +40,12 @@ export default (props) => {
           ids: [],
           messages: [],
         },
+        bindings: {
+          up: false,
+          down: false,
+          left: false,
+          right: false,
+        },
       },
       self: {
         id: props.game.id,
@@ -64,9 +70,37 @@ export default (props) => {
       console.log(event);
     });
 
+
     const setState = (callback) => {
-      state = { ...callback(state) };
+      state = { ...state, ...callback(state) };
+      console.log(state.local.bindings);
     };
+
+    const setBinding = key => toggle => {
+      setState((s) => ({ local: { ...s.local, bindings: { ...s.local.bindings, [key]: toggle } } }));
+    };
+
+    const KeyBinds = {
+      'ArrowUp': setBinding('up'),
+      'ArrowDown': setBinding('down'),
+      'ArrowLeft': setBinding('left'),
+      'ArrowRight': setBinding('right'),
+    };
+
+    window.addEventListener('keydown', (event) => {
+      const keyFunction = KeyBinds[event.key];
+      if (!keyFunction) return;
+
+      keyFunction(true);
+    });
+
+    window.addEventListener('keyup', (event) => {
+      const keyFunction = KeyBinds[event.key];
+      if (!keyFunction) return;
+
+      keyFunction(false);
+    });
+
 
     const tick = (now) => {
       setState((previousState) => {
@@ -79,8 +113,10 @@ export default (props) => {
 
         const gamepads = window.navigator.getGamepads();
         const gamepad = gamepads[0];
-        controller.update(gamepad);
-        const [xDiff, yDiff] = gamepad ? gamepad.axes : [0, 0];
+        //controller.update(gamepad);
+        //const [xDiff, yDiff] = gamepad ? gamepad.axes : [0, 0];
+        const xDiff = Number(local.bindings.right) - Number(local.bindings.left);
+        const yDiff = Number(local.bindings.down) - Number(local.bindings.up);
         self = {
           ...previousState.self,
           x: previousState.self.x + Number((xDiff * delta * 100).toFixed(2)),

@@ -13,7 +13,7 @@ export default (options) => (Component) => (props) => {
     };
 
     const onMessage = (event) => {
-      const message = JSON.parse(event.data);
+      const message = JSON.parse(event.data.toString());
       backlogRef.current.push(message);
       listenersRef.current.forEach((callback) => {
         if (backlogRef.current.length === 0) return;

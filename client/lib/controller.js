@@ -1,3 +1,6 @@
+import Input from './input.js';
+import dig from './dig.js';
+
 const emptyGamepad = {
   id: '',
   index: -1,
@@ -16,10 +19,11 @@ const serializeGamepad = (gamepad) => (gamepad ? {
   timestamp: gamepad.timestamp,
 } : emptyGamepad);
 
-export default class Controller {
+export default class Controller extends Input {
   constructor(gamepad) {
+    super()
     this.gamepad = serializeGamepad(gamepad);
-    this.listeners = {
+    this.extendListeners({
       'joystick.left': [],
       'joystick.right': [],
       'buttons': [],
@@ -28,35 +32,12 @@ export default class Controller {
       'bumpers': [],
       'triggers': [],
       'change': [],
+    });
+
+    this.mapping = {
+      'axes.0': (value) => { this.horizontal = value; },
+      'axes.1': (value) => { this.vertical = value; },
     };
-  }
-
-  addEventListener(eventName, callback) {
-    this._validateEvent(eventName, () => {
-      this.listeners[eventName].push(callback);
-
-      return () => this.removeEventListener(eventName, callback);
-    });
-  }
-
-  removeEventListener(eventName, callback) {
-    this._validateEvent(eventName, () => {
-      this.listeners[eventName] = this.listeners[eventName]
-        .filter(cb => cb !== callback);
-    });
-  }
-
-  _validateEvent(eventName, onGood) {
-    if (eventName in this.listeners) {
-      return onGood();
-    }
-
-    console.warn(
-      'Controller.*EventListener',
-      'Unsupported event name',
-      { yourEvent: eventName, supportedEventNames: Object.keys(this.listeners) },
-    );
-    return () => {};
   }
 
   update(gamepad) {
@@ -71,7 +52,15 @@ export default class Controller {
     this._updateButtons(gamepad, nextGamepad);
     this._updateButtonsByState(gamepad, nextGamepad);
 
+    this._handleMappings(nextGamepad);
+
     this.gamepad = nextGamepad;
+  }
+
+  _handleMappings(gamepad) {
+    Object.keys(this.mapping).forEach((key) => {
+      this.mapping[key](dig(gamepad, key.split('.'), 0));
+    });
   }
 
   _updateAnyChange(gamepad, nextGamepad) {
@@ -79,7 +68,9 @@ export default class Controller {
   }
 
   _updateJoystick(indexes, eventName, gamepad, nextGamepad) {
-    const diff = indexes.some((index) => this.gamepad.axes[index] !== nextGamepad.axes[index]);
+    const diff = indexes.some((index) => (
+      dig(this.gamepad, `axes.${index}`, 0) !== dig(nextGamepad, `axes.${index}`, 0)
+    ));
     if (!diff) return;
 
     this._trigger(eventName, gamepad, {
@@ -89,19 +80,20 @@ export default class Controller {
   }
 
   _updateSpecialButtons(indexes, eventName, gamepad, nextGamepad) {
-    const diff = indexes.some((index) => !this.gamepad.buttons[index] || this.gamepad.buttons[index].value !== nextGamepad.buttons[index].value);
+    const diff = indexes.some((index) => (
+      dig(this.gamepad, `buttons.${index}.value`, 0) !== dig(nextGamepad, `buttons.${index}.value`, 0)
+    ));
     if (!diff) return;
 
     this._trigger(eventName, gamepad, {
-      left: nextGamepad.buttons[indexes[0]],
-      right: nextGamepad.buttons[indexes[1]],
+      left: dig(nextGamepad, `buttons.${indexes[0]}`, { value: 0, touched: false, pressed: false }),
+      right: dig(nextGamepad, `buttons.${indexes[1]}`, { value: 0, touched: false, pressed: false }),
     });
   }
 
   _updateButtons(gamepad, nextGamepad) {
     const diff = nextGamepad.buttons.some((button, index) => (
-      (!this.gamepad.buttons[index] && button.value)
-      || (button.value !== this.gamepad.buttons[index].value)
+      dig(button, 'value', 0) !== dig(this.gamepad, `buttons.${index}.value`, 0)
     ));
     if (!diff) return;
 

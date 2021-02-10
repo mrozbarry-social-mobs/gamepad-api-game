@@ -15,7 +15,7 @@ const Screens = {
 };
 
 function App(){
-  const [screen, setScreen] = useState('game');
+  const [screen, setScreen] = useState('intro');
 
   const Component = Screens[screen];
   const componentProps = {

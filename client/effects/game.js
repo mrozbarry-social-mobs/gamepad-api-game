@@ -3,6 +3,7 @@ import { render } from 'declarativas';
 import smallState from '../lib/smallState.js';
 import Controller from '../lib/controller.js';
 import canvasRender from './canvas/index.js';
+import Keyboard from '../lib/keyboard.js';
 
 const random8BitHex = () => {
   const bits = Math.floor(Math.random() * 256);
@@ -62,38 +63,7 @@ export default (init) => {
     lastRender: null,
   });
 
-  const controller = new Controller(window.navigator.getGamepads[0]);
-
-  controller.addEventListener('button.down', (event) => {
-    console.log(event);
-  });
-
-
-  const setBinding = key => toggle => {
-    state.set((s) => ({ local: { ...s.local, bindings: { ...s.local.bindings, [key]: toggle } } }));
-  };
-
-  const KeyBinds = {
-    'ArrowUp': setBinding('up'),
-    'ArrowDown': setBinding('down'),
-    'ArrowLeft': setBinding('left'),
-    'ArrowRight': setBinding('right'),
-  };
-
-  window.addEventListener('keydown', (event) => {
-    const keyFunction = KeyBinds[event.key];
-    if (!keyFunction) return;
-
-    keyFunction(true);
-  });
-
-  window.addEventListener('keyup', (event) => {
-    const keyFunction = KeyBinds[event.key];
-    if (!keyFunction) return;
-
-    keyFunction(false);
-  });
-
+  const input = new Keyboard();
 
   const tick = (now) => {
     state.set((previousState) => {
@@ -104,16 +74,12 @@ export default (init) => {
       let self = { ...previousState.self };
       let local = { ...previousState.local };
 
-      const gamepads = window.navigator.getGamepads();
-      const gamepad = gamepads[0];
-      controller.update(gamepad);
-      //const [xDiff, yDiff] = gamepad ? gamepad.axes : [0, 0];
-      //const xDiff = Number(local.bindings.right) - Number(local.bindings.left);
-      //const yDiff = Number(local.bindings.down) - Number(local.bindings.up);
+      input.update();
+      
       self = {
         ...previousState.self,
-        x: previousState.self.x + Number((controller.horizontal * delta * 100).toFixed(2)),
-        y: previousState.self.y + Number((controller.vertical * delta * 100).toFixed(2)),
+        x: previousState.self.x + Number((input.horizontal * delta * 100).toFixed(2)),
+        y: previousState.self.y + Number((input.vertical * delta * 100).toFixed(2)),
       };
 
       if (gamepad && (gamepad.timestamp > local.lastGamepadTimestamp)) {

@@ -40,7 +40,10 @@ export default class Controller extends Input {
     };
   }
 
-  update(gamepad) {
+  update() {
+    const gamepads = window.navigator.getGamepads();
+    const gamepad = gamepads.find(pad => pad.id === this.gamepad.id && pad.index === this.gamepad.index);
+
     const nextGamepad = serializeGamepad(gamepad);
     if (nextGamepad.timestamp === this.gamepad.timestamp) return;
 

@@ -7,15 +7,17 @@ import { render } from 'react-dom';
 
 import Intro from './components/intro.js';
 import Game from './components/game.js';
+import Keyboard from '../lib/keyboard.js';
 
-
+const onGameStart = () => props.setScreen('game')
 const Screens = {
-  'intro': (props) => <Intro onGameStart={() => props.setScreen('game')} />,
+  'intro': (props) => <Intro onGameStart={onGameStart} />,
   'game': (props) => <Game />,
 };
 
 function App(){
   const [screen, setScreen] = useState('intro');
+  const [state, setState] = useState(new Keyboard);
 
   const Component = Screens[screen];
   const componentProps = {

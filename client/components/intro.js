@@ -11,7 +11,7 @@ export default ({onGameStart = () => {}}) => {
 
     const gamepadPoll = () => {
       const [gamepad] = window.navigator.getGamepads()
-      controller.update(gamepad);
+      controller.update();
       handle = setTimeout(gamepadPoll, 10);
     }
 

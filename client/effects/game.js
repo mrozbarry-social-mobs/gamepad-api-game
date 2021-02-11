@@ -115,7 +115,7 @@ export default ({ input, ...init }) => {
     });
     cancelSchedule = schedule(tick);
   };
-  tick(performance.now());
+  cancelSchedule = schedule(tick);
 
   const cancel = init.hostSubscribe((message) => {
     switch (message.type) {

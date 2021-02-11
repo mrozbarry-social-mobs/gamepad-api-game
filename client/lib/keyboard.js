@@ -23,23 +23,23 @@ export default class Keyboard extends Input {
     this._onKeyDown = this._onKeyDown.bind(this);
     this._onKeyUp = this._onKeyUp.bind(this);
     window.addEventListener('keydown', this._onKeyDown) ;
-    window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('keyup', this._onKeyUp);
   }
 
   _onKeyDown(event) {
     if (event.repeat) return;
     const map = defaultKeyMap[event.key];
     if (!map) return;
-    this.state.set(() => ({ [defaultKeyMap[map]]: true }));
+    this.state.set(() => ({ [map]: true }));
   }
 
   _onKeyUp(event) {
-    const map = defaultKeyMap[event.key];
-    if (map) {
-      return this.state.set(() => ({ [defaultKeyMap[map]]: false }));
+    const key = defaultKeyMap[event.key];
+    if (key) {
+      return this.state.set(() => ({ [key]: false }));
     }
     switch(event.key) {
-      case 'Space':
+      case ' ':
         this._trigger('oninteract', {}, event.timeStamp);
         break;
     }
@@ -52,7 +52,8 @@ export default class Keyboard extends Input {
   }
 
   update() {
-    this.horizontal = Number(this.state.right) - Number(this.state.left)
-    this.vertical = Number(this.state.down) - Number(this.state.up)
+    const state = this.state.get();
+    this.horizontal = Number(state.right) - Number(state.left)
+    this.vertical = Number(state.down) - Number(state.up)
   }
 }

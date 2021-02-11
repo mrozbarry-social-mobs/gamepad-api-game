@@ -1,9 +1,12 @@
 import { render } from 'declarativas';
 
 import smallState from '../lib/smallState.js';
-import Controller from '../lib/controller.js';
 import canvasRender from './canvas/index.js';
-import Keyboard from '../lib/keyboard.js';
+
+const schedule = (fn) => {
+  let handle = requestAnimationFrame(fn);
+  return () => cancelAnimationFrame(handle);
+};
 
 const random8BitHex = () => {
   const bits = Math.floor(Math.random() * 256);
@@ -23,7 +26,7 @@ const randomFriend = () => {
 };
 
 export default ({ input, ...init }) => {
-  let handle = null;
+  let cancelSchedule = () => {};
   const context2d = init.canvasRef.current.getContext('2d');
   const state = smallState({
     config: {
@@ -52,6 +55,10 @@ export default ({ input, ...init }) => {
       color: init.self.color,
       y: init.self.y,
     },
+    camera: {
+      x: init.self.x,
+      y: init.self.y,
+    },
     friends: [
       randomFriend(),
       randomFriend(),
@@ -64,23 +71,35 @@ export default ({ input, ...init }) => {
 
   const tick = (now) => {
     state.set((previousState) => {
-      const delta = previousState.lastRender
-        ? (now - previousState.lastRender) / 1000
-        : 0;
+      if (!previousState.lastRender) {
+        return { ...previousState, lastRender: now }
+      }
+      const delta = (now - previousState.lastRender) / 1000;
+
 
       let self = { ...previousState.self };
       let local = { ...previousState.local };
+      let camera = { ...previousState.camera };
 
       input.update();
       
       self = {
-        ...previousState.self,
+        ...self,
         x: previousState.self.x + Number((input.horizontal * delta * 100).toFixed(2)),
         y: previousState.self.y + Number((input.vertical * delta * 100).toFixed(2)),
       };
 
+      const camDiffX = delta === 0 ? 0 : (self.x - camera.x) / 70;
+      const camDiffY = delta === 0 ? 0 : (self.y - camera.y) / 70;
+      camera = {
+        ...camera,
+        x: Math.abs(camDiffX) < 0.01 ? self.x : camera.x + camDiffX,
+        y: Math.abs(camDiffY) < 0.01 ? self.y : camera.y + camDiffY,
+      };
+
       render(context2d, canvasRender({
         canvas: init.canvasRef.current,
+        camera: camera,
         friends: previousState.friends,
         self,
         config: previousState.config,
@@ -90,10 +109,11 @@ export default ({ input, ...init }) => {
         ...previousState,
         self,
         local,
+        camera,
         lastRender: now,
       };
     });
-    handle = requestAnimationFrame(tick);
+    cancelSchedule = schedule(tick);
   };
   tick(performance.now());
 
@@ -137,7 +157,7 @@ export default ({ input, ...init }) => {
   });
 
   return () => {
-    cancelAnimationFrame(handle);
+    cancelSchedule();
     cancel();
   };
 }

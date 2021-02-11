@@ -4,6 +4,7 @@ import font from './font.js';
 import player from './player.js';
 import playerHighlight from './playerHighlight.js';
 import playerName from './playerName.js';
+import camera from './camera.js';
 
 
 
@@ -20,23 +21,27 @@ export default (props) => {
 
   return preserveState([
     rect({ width: props.canvas.width, height: props.canvas.height, fillStyle: 'white' }),
+    camera({
+      camera: props.camera,
+      canvas: props.canvas,
+    }, [
+      playerHighlight(props),
 
-    playerHighlight(props),
-
-    props.friends.map((friend) => player({
-      ...friend,
-      config: props.config,
-      isInRange: isInRange(friend),
-    })),
-
-    player({ ...props.self, config: props.config, isPlayer: true }),
-
-    font("24px 'Press Start 2P'", [
-      props.friends.map((friend) => playerName({
+      props.friends.map((friend) => player({
         ...friend,
         config: props.config,
         isInRange: isInRange(friend),
-      }))
+      })),
+
+      player({ ...props.self, config: props.config, isPlayer: true }),
+
+      font("24px 'Press Start 2P'", [
+        props.friends.map((friend) => playerName({
+          ...friend,
+          config: props.config,
+          isInRange: isInRange(friend),
+        }))
+      ]),
     ]),
   ]);
 };

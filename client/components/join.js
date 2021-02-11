@@ -35,6 +35,7 @@ export default (props) => {
             placeholder="Name"
             required
             defaultValue={props.game.name}
+            autoFocus
           />
         </fieldset>
 

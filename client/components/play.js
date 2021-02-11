@@ -7,6 +7,7 @@ export default (props) => {
 
   useEffect(() => {
     return gameFx({
+      input: props.input,
       self: props.game,
       canvasRef,
       hostSubscribe: props.hostSubscribe,

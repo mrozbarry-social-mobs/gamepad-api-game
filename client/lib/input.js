@@ -38,6 +38,18 @@ export default class Input {
     this.listeners[eventName] = this.listeners[eventName]
       .filter((cb) => cb !== callback);
   }
+
+  _trigger(eventName, data, timestamp, extra = {}) {
+    const event = {
+      ...extra,
+      type: eventName,
+      parent: this,
+      data,
+      timestamp,
+    };
+
+    this.listeners[eventName].forEach((cb) => cb(event));
+  }
 }
 
 Input.defaultListeners = Object.freeze(Object.keys(defaultListeners));

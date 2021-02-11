@@ -38,11 +38,17 @@ export default class Controller extends Input {
       'axes.0': (value) => { this.horizontal = value; },
       'axes.1': (value) => { this.vertical = value; },
     };
+
+    this.addEventListener('button.down', (event) => {
+      if (event.data.index !== 0) return;
+      this._trigger('oninteract', gamepad, {})
+    });
   }
 
-  update() {
-    const gamepads = window.navigator.getGamepads();
+  update(allGamepads) {
+    const gamepads = allGamepads || window.navigator.getGamepads();
     const gamepad = gamepads.find(pad => pad.id === this.gamepad.id && pad.index === this.gamepad.index);
+    if (!gamepad) return;
 
     const nextGamepad = serializeGamepad(gamepad);
     if (nextGamepad.timestamp === this.gamepad.timestamp) return;
@@ -120,14 +126,6 @@ export default class Controller extends Input {
   }
 
   _trigger(eventName, gamepad, data) {
-    const event = {
-      type: eventName,
-      target: gamepad,
-      parent: this,
-      data,
-      timestamp: gamepad.timestamp,
-    };
-
-    this.listeners[eventName].forEach((cb) => cb(event));
+    super._trigger(eventName, data, gamepad.timestamp, { target: gamepad });
   }
 }

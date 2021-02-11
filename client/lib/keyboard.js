@@ -1,81 +1,54 @@
 import Input from './input.js';
-import dig from './dig.js';
+import makeState from './smallState.js';
 
-const emptyGamepad = {
-  id: '',
-  index: -1,
-  connected: false,
-  axes: [],
-  buttons: [],
-  timestamp: 0,
+const defaultKeyMap = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
 };
 
-export default class Controller extends Input {
 
-  keybinds = {
-    'ArrowUp': '',
-    'ArrowDown': '',
-    'ArrowLeft': '',
-    'ArrowRight': ''
-  }
-
+export default class Keyboard extends Input {
   constructor() {
     super();
 
-    this.state = {
+    this.state = makeState({
       up: false,
       left: false,
       down: false,
       right: false,
-    };
+    });
 
-    // window.addEventListener
-    window.addEventListener('keydown', (event) => {
-      if (event.repeat) return;
+    this._onKeyDown = this._onKeyDown.bind(this);
+    this._onKeyUp = this._onKeyUp.bind(this);
+    window.addEventListener('keydown', this._onKeyDown) ;
+    window.addEventListener('keyup', this.onKeyUp);
+  }
 
-      switch(event.key) {
-        case 'ArrowUp':
-          this.state.up = true;
-          break;
+  _onKeyDown(event) {
+    if (event.repeat) return;
+    const map = defaultKeyMap[event.key];
+    if (!map) return;
+    this.state.set(() => ({ [defaultKeyMap[map]]: true }));
+  }
 
-        case 'ArrowDown':
-          this.state.down = true;
-          break;
-
-        case 'ArrowLeft':
-          this.state.left = true;
-          break;
-
-        case 'ArrowRight':
-          this.state.right = true;
-          break;
-      }
-    }) 
-
-    window.addEventListener('keyup', (event) => {
-      switch(event.key) {
-        case 'ArrowUp':
-          this.state.up = false;
-          break;
-
-        case 'ArrowDown':
-          this.state.down = false;
-          break;
-
-        case 'ArrowLeft':
-          this.state.left = false;
-          break;
-
-        case 'ArrowRight':
-          this.state.right = false;
-          break;
-      }
-    }) 
+  _onKeyUp(event) {
+    const map = defaultKeyMap[event.key];
+    if (map) {
+      return this.state.set(() => ({ [defaultKeyMap[map]]: false }));
+    }
+    switch(event.key) {
+      case 'Space':
+        this._trigger('oninteract', {}, event.timeStamp);
+        break;
+    }
   }
 
   detach() {
     super.detach();
-    // window.removeEventListener
+    window.removeEventListener('keydown', this._onKeyDown) ;
+    window.removeEventListener('keyup', this.onKeyUp);
   }
 
   update() {

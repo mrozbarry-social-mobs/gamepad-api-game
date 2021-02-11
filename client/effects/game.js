@@ -22,7 +22,7 @@ const randomFriend = () => {
   };
 };
 
-export default (init) => {
+export default ({ input, ...init }) => {
   let handle = null;
   const context2d = init.canvasRef.current.getContext('2d');
   const state = smallState({
@@ -33,7 +33,6 @@ export default (init) => {
       },
     },
     local: {
-      lastGamepadTimestamp: null,
       interacting: {
         active: false,
         ids: [],
@@ -63,8 +62,6 @@ export default (init) => {
     lastRender: null,
   });
 
-  const input = new Keyboard();
-
   const tick = (now) => {
     state.set((previousState) => {
       const delta = previousState.lastRender
@@ -81,11 +78,6 @@ export default (init) => {
         x: previousState.self.x + Number((input.horizontal * delta * 100).toFixed(2)),
         y: previousState.self.y + Number((input.vertical * delta * 100).toFixed(2)),
       };
-
-      if (gamepad && (gamepad.timestamp > local.lastGamepadTimestamp)) {
-        // Handle button changes?
-        local.lastGamepadTimestamp = gamepad.timestamp;
-      }
 
       render(context2d, canvasRender({
         canvas: init.canvasRef.current,

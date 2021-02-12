@@ -8,9 +8,9 @@ export default ({ onGameStart }) => {
   const [gamepads, setGamepads] = useState([]);
 
   useEffect(() => {
+    let handle = null;
     let controllers = [];
     const keyboard = new Keyboard();
-    let handle = null;
 
     const onInteract = (event) => {
       onGameStart(event.parent);
@@ -18,8 +18,9 @@ export default ({ onGameStart }) => {
 
     const gamepadPoll = () => {
       const gamepads = window.navigator.getGamepads();
+      setGamepads(() => Array.from(window.navigator.getGamepads()).filter((gp) => gp));
       controllers.forEach(c => c.update(gamepads));
-      handle = setTimeout(gamepadPoll, 10);
+      handle = setTimeout(gamepadPoll);
     }
 
     const onGamepadConnected = (event) => {
@@ -27,20 +28,17 @@ export default ({ onGameStart }) => {
       const controller = new Controller(event.gamepad); 
       controller.addEventListener('oninteract', onInteract);
       controllers.push(controller);
-      gamepadPoll();
     }
 
     const onGamepadDisconnected = (event) => {
       setGamepads(() => Array.from(window.navigator.getGamepads()).filter((gp) => gp));
       controllers = controllers.filter((c) => c.id !== event.gamepad.id && c.index !== event.gamepad.index);
-      if (controllers.length === 0) {
-        clearTimeout(handle);
-      }
     }
 
     keyboard.addEventListener('oninteract', onInteract);
     window.addEventListener('gamepadconnected', onGamepadConnected);
     window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
+    handle = setTimeout(gamepadPoll);
 
     return () => {
       clearTimeout(handle);

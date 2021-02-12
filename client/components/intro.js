@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Controller from '../lib/controller';
-import Keyboard from '../lib/keyboard';
-import KeyLayout from './keyLayout';
+import Controller from '../lib/controller.js';
+import Keyboard from '../lib/keyboard.js';
+import KeyLayout from './keyLayout.js';
+import GamepadLayout from './gamepadLayout.js';
 
 export default ({ onGameStart }) => {
-  const [gamepadCount, setGamepadCount] = useState(0);
+  const [gamepads, setGamepads] = useState([]);
 
   useEffect(() => {
     let controllers = [];
@@ -22,7 +23,7 @@ export default ({ onGameStart }) => {
     }
 
     const onGamepadConnected = (event) => {
-      setGamepadCount((gpc) => gpc + 1);
+      setGamepads(() => Array.from(window.navigator.getGamepads()).filter((gp) => gp));
       const controller = new Controller(event.gamepad); 
       controller.addEventListener('oninteract', onInteract);
       controllers.push(controller);
@@ -30,7 +31,7 @@ export default ({ onGameStart }) => {
     }
 
     const onGamepadDisconnected = (event) => {
-      setGamepadCount((gpc) => gpc - 1);
+      setGamepads(() => Array.from(window.navigator.getGamepads()).filter((gp) => gp));
       controllers = controllers.filter((c) => c.id !== event.gamepad.id && c.index !== event.gamepad.index);
       if (controllers.length === 0) {
         clearTimeout(handle);
@@ -58,9 +59,12 @@ export default ({ onGameStart }) => {
         Press a button on your controller to start
         <section className="mb-4">
           <h2 className="text-lg font-bold mb-2">Gamepad</h2>
-          {gamepadCount === 0 && (
+          {gamepads.length === 0 && (
             <div>Plug in and press a button on a controller to use it</div>
           )}
+          {gamepads.map(gamepad => (
+            <GamepadLayout key={`${gamepad.id}-${gamepad.index}`} gamepad={gamepad} />
+          ))}
         </section>
         <section className="mb-4">
           <h2 className="text-lg font-bold mb-2">Keyboard</h2>

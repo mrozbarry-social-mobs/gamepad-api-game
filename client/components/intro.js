@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Controller from '../lib/controller';
 import Keyboard from '../lib/keyboard';
+import KeyLayout from './keyLayout';
 
 export default ({ onGameStart }) => {
+  const [gamepadCount, setGamepadCount] = useState(0);
+
   useEffect(() => {
     let controllers = [];
     const keyboard = new Keyboard();
@@ -19,7 +22,7 @@ export default ({ onGameStart }) => {
     }
 
     const onGamepadConnected = (event) => {
-      console.log('gamepad connected', event.gamepad);
+      setGamepadCount((gpc) => gpc + 1);
       const controller = new Controller(event.gamepad); 
       controller.addEventListener('oninteract', onInteract);
       controllers.push(controller);
@@ -27,7 +30,7 @@ export default ({ onGameStart }) => {
     }
 
     const onGamepadDisconnected = (event) => {
-      console.log('gamepad disconnected', event.gamepad);
+      setGamepadCount((gpc) => gpc - 1);
       controllers = controllers.filter((c) => c.id !== event.gamepad.id && c.index !== event.gamepad.index);
       if (controllers.length === 0) {
         clearTimeout(handle);
@@ -50,9 +53,19 @@ export default ({ onGameStart }) => {
   }, [])
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center">
-      <div className="rounded p-4 pt-6 shadow-lg border border-gray-200 w-1/3">
+    <div className="h-screen flex flex-col items-center justify-center">
+      <div className="rounded px-10 pt-6 shadow-lg border border-gray-200 w-1/3">
         Press a button on your controller to start
+        <section className="mb-4">
+          <h2 className="text-lg font-bold mb-2">Gamepad</h2>
+          {gamepadCount === 0 && (
+            <div>Plug in and press a button on a controller to use it</div>
+          )}
+        </section>
+        <section className="mb-4">
+          <h2 className="text-lg font-bold mb-2">Keyboard</h2>
+          <KeyLayout />
+        </section>
       </div>
     </div>
   )

@@ -39,7 +39,7 @@ export default class Keyboard extends Input {
       return this.state.set(() => ({ [key]: false }));
     }
     switch(event.key) {
-      case ' ':
+      case 'x':
         this._trigger('oninteract', {}, event.timeStamp);
         break;
     }

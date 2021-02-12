@@ -45,8 +45,8 @@ export default (options) => (Component) => (props) => {
 
   const hostSend = (type, payload) => {
     if (!socketRef.current) return;
-
-    socketRef.current.send(JSON.stringify({ type, payload, timestamp: performance.now() }));
+    const taco = JSON.stringify({ type, payload, timestamp: performance.now() });
+    socketRef.current.send(taco);
   };
 
   const hostSubscribe = (callback) => {

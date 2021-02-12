@@ -9,7 +9,7 @@ export const websocketBroadcast = (
   Array.from(websocketServer.clients)
     .filter((client) => client !== fromClient && client.readyState === WebSocket.OPEN)
     .forEach((client) => {
-      client.send(message.toString());
+      client.send(message);
     });
 
   return effects.none();

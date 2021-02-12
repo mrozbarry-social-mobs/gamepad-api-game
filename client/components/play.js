@@ -11,6 +11,7 @@ export default (props) => {
       self: props.game,
       canvasRef,
       hostSubscribe: props.hostSubscribe,
+      hostSend: props.hostSend
     });
   }, []);
 

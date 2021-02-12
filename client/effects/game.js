@@ -8,23 +8,6 @@ const schedule = (fn) => {
   return () => cancelAnimationFrame(handle);
 };
 
-const random8BitHex = () => {
-  const bits = Math.floor(Math.random() * 256);
-  return bits.toString(16).padStart(2, '0');
-};
-
-const randomFriend = () => {
-  const id = Math.random().toString(36).slice(2);
-
-  return {
-    id,
-    name: id,
-    x: (Math.random() * 1000),
-    y: (Math.random() * 1000),
-    color: '#' + random8BitHex() + random8BitHex() + random8BitHex(),
-  };
-};
-
 export default ({ input, ...init }) => {
   let cancelSchedule = () => {};
   const context2d = init.canvasRef.current.getContext('2d');
@@ -59,13 +42,7 @@ export default ({ input, ...init }) => {
       x: init.self.x,
       y: init.self.y,
     },
-    friends: [
-      randomFriend(),
-      randomFriend(),
-      randomFriend(),
-      randomFriend(),
-      randomFriend(),
-    ],
+    friends: [],
     lastRender: null,
   });
 
@@ -105,6 +82,10 @@ export default ({ input, ...init }) => {
         config: previousState.config,
       }));
 
+      if (previousState.self.x !== self.x || previousState.self.y !== self.y) {
+        init.hostSend('SHARE', self);
+      }
+
       return {
         ...previousState,
         self,
@@ -143,11 +124,15 @@ export default ({ input, ...init }) => {
 
       case 'SHARE':
         return state.set((previousState) => {
-          const friends = previousState.map((friend) => {
-            return friend.id === message.payload.id
-              ? message.payload
-              : friend;
-          });
+          const friends = [...previousState.friends];
+          const friendIndex = friends.findIndex((friend) => friend.id === message.payload.id);
+
+          if (friendIndex >= 0) {
+            friends[friendIndex] = message.payload
+          } else {
+            friends.push(message.payload);
+          }
+
           return {
             ...previousState,
             friends

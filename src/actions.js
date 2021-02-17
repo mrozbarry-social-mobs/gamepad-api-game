@@ -4,6 +4,8 @@ import * as fx from './effects.js';
 export const INITIAL_STATE = {
   websocketServer: null,
   clients: [],
+  timeCreated: Date.now(),
+  messages: [],
 };
 
 export const init = (websocketServer) => () => [
@@ -29,13 +31,28 @@ export const clientReset = () => (state) => [
   { ...state, clients: [] },
 ];
 
+export const tacos = (state) => {
+  state.messages.map((message) => message.send())
+  return [{
+    ...state,
+    messages: []
+  }, 
+    fx.websocketBroadcast(
+      state.websocketServer,
+      client,
+      message
+    ),
+  ]
+}
+
+
 export const serverBroadcast = (client, message) => (state) => [
-  state,
-  fx.websocketBroadcast(
-    state.websocketServer,
-    client,
-    message
-  ),
+  {
+    ...state,
+    timeCreated: Date.now(),
+    messages: state.messages.concat(message),
+  },
+  fx.delay(100, tacos)
 ];
 
 export const clientSend = (client, type, payload) => (state) => [

@@ -23,3 +23,12 @@ export const websocketSend = (
 
   return effects.none();
 });
+
+export const delay = (milliseconds, action) => effects.thunk(() => {
+  return effects.defer(new Promise((resolve, reject) => {
+    
+  setTimeout(() => {
+   resolve(action);
+  }, milliseconds);  
+  }))
+});
